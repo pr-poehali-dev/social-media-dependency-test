@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { RadialBarChart, RadialBar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, PieChart, Pie } from 'recharts';
 
 interface Question {
   id: number;
@@ -220,26 +221,116 @@ export default function SocialMediaTest() {
             </p>
           </div>
 
+          <div className="grid lg:grid-cols-2 gap-8">
+            <Card className="shadow-xl border-0">
+              <CardHeader className="text-center pb-6">
+                <div className="space-y-4">
+                  <div className="mx-auto w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Icon name="BarChart3" size={48} className="text-primary" />
+                  </div>
+                  <Badge className={`${result.color} px-6 py-2 text-lg font-semibold`}>
+                    {result.level}
+                  </Badge>
+                  <div className="text-6xl font-bold text-primary">
+                    {result.score}<span className="text-2xl text-muted-foreground">/40</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="text-center">
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    {result.description}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-primary">Визуализация результата</h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadialBarChart cx="50%" cy="50%" innerRadius="40%" outerRadius="90%" data={[
+                        {
+                          name: 'Результат',
+                          value: result.score,
+                          fill: result.score <= 16 ? '#10b981' : result.score <= 24 ? '#f59e0b' : result.score <= 32 ? '#f97316' : '#ef4444'
+                        }
+                      ]}>
+                        <RadialBar
+                          dataKey="value"
+                          cornerRadius={10}
+                          fill="#8884d8"
+                          max={40}
+                        />
+                        <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-primary text-2xl font-bold">
+                          {Math.round((result.score / 40) * 100)}%
+                        </text>
+                      </RadialBarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-xl border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <Icon name="TrendingUp" size={24} />
+                  Анализ по категориям
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'Контроль времени', value: (answers[1] + answers[6]) || 0, fill: '#8b5cf6' },
+                            { name: 'Социальная изоляция', value: (answers[3] + answers[4]) || 0, fill: '#06b6d4' },
+                            { name: 'Влияние на жизнь', value: (answers[2] + answers[8]) || 0, fill: '#10b981' },
+                            { name: 'Академич./Рабочие дела', value: (answers[5] + answers[7]) || 0, fill: '#f59e0b' }
+                          ]}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          dataKey="value"
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Уровни зависимости</span>
+                    </div>
+                    <div className="space-y-2">
+                      {[
+                        { range: '8-16', label: 'Низкий', color: '#10b981', current: result.score <= 16 },
+                        { range: '17-24', label: 'Умеренный', color: '#f59e0b', current: result.score > 16 && result.score <= 24 },
+                        { range: '25-32', label: 'Повышенный', color: '#f97316', current: result.score > 24 && result.score <= 32 },
+                        { range: '33-40', label: 'Высокий', color: '#ef4444', current: result.score > 32 }
+                      ].map((level) => (
+                        <div key={level.range} className={`flex items-center justify-between p-3 rounded-lg ${level.current ? 'bg-primary/10 border-2 border-primary' : 'bg-muted/50'}`}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: level.color }} />
+                            <span className={`font-medium ${level.current ? 'text-primary' : 'text-muted-foreground'}`}>
+                              {level.label}
+                            </span>
+                          </div>
+                          <span className={`text-sm ${level.current ? 'text-primary' : 'text-muted-foreground'}`}>
+                            {level.range} баллов
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card className="shadow-xl border-0">
-            <CardHeader className="text-center pb-6">
-              <div className="space-y-4">
-                <div className="mx-auto w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Icon name="BarChart3" size={48} className="text-primary" />
-                </div>
-                <Badge className={`${result.color} px-6 py-2 text-lg font-semibold`}>
-                  {result.level}
-                </Badge>
-                <div className="text-6xl font-bold text-primary">
-                  {result.score}<span className="text-2xl text-muted-foreground">/40</span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="text-center">
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  {result.description}
-                </p>
-              </div>
+            <CardContent className="space-y-8 pt-6">
 
               <div className="space-y-6">
                 <h3 className="text-2xl font-semibold text-primary flex items-center gap-3">
